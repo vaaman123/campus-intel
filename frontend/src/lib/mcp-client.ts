@@ -62,7 +62,7 @@ export async function getMCPManifest(serverId: string): Promise<MCPManifest | nu
   const server = MCP_SERVERS.find((s) => s.id === serverId);
   if (!server) return null;
   try {
-    const res = await fetch(`${server.url}/mcp/manifest`, { 
+    const res = await fetch(`${server.url}/manifest`, { 
       signal: AbortSignal.timeout(15000),
       next: { revalidate: 60 } 
     });
@@ -83,7 +83,7 @@ export async function invokeMCPTool(
     return { success: false, tool, result: null, error: `Server ${serverId} not found` };
   }
   try {
-    const res = await fetch(`${server.url}/mcp/invoke`, {
+    const res = await fetch(`${server.url}/invoke`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tool, input }),
