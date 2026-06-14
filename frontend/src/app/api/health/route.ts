@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { MCP_SERVERS } from "@/lib/mcp-client";
+import { MCP_SERVERS, resolveUrl } from "@/lib/mcp-client";
 
 export async function GET() {
   const results = await Promise.allSettled(
     MCP_SERVERS.map(async (server) => {
       try {
-        const res = await fetch(`${server.url}/health`, {
+        const res = await fetch(resolveUrl(`${server.url}/health`), {
           signal: AbortSignal.timeout(15000),
         });
         const data = await res.json();

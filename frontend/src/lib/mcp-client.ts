@@ -27,6 +27,18 @@ export interface MCPInvokeResult {
   error?: string;
 }
 
+// Resolve relative URLs to absolute for server-side fetch
+export function resolveUrl(path: string): string {
+  if (path.startsWith("http")) return path;
+  // On Vercel, use VERCEL_URL or construct from env
+  const base = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.NEXT_PUBLIC_VERCEL_URL 
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+      : "http://localhost:3000";
+  return `${base}${path}`;
+}
+
 export const MCP_SERVERS: MCPServer[] = [
   {
     id: "library",
@@ -62,7 +74,7 @@ export async function getMCPManifest(serverId: string): Promise<MCPManifest | nu
   const server = MCP_SERVERS.find((s) => s.id === serverId);
   if (!server) return null;
   try {
-    const res = await fetch(`${server.url}/manifest`, { 
+    const res = await fetch(resolveUrl(`${server.url}/manifest`), { 
       signal: AbortSignal.timeout(15000),
       next: { revalidate: 60 } 
     });
@@ -83,7 +95,7 @@ export async function invokeMCPTool(
     return { success: false, tool, result: null, error: `Server ${serverId} not found` };
   }
   try {
-    const res = await fetch(`${server.url}/invoke`, {
+    const res = await fetch(resolveUrl(`${server.url}/invoke`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tool, input }),

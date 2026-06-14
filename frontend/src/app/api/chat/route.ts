@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { MCP_SERVERS, invokeMCPTool } from "@/lib/mcp-client";
+import { MCP_SERVERS, invokeMCPTool, resolveUrl } from "@/lib/mcp-client";
 
 // Lazy-init DeepSeek client to avoid build-time env var checks
 let _client: OpenAI | null = null;
@@ -21,7 +21,7 @@ async function buildTools(): Promise<OpenAI.Chat.Completions.ChatCompletionTool[
   const manifests = await Promise.allSettled(
     MCP_SERVERS.map(async (server) => {
       try {
-        const res = await fetch(`${server.url}/mcp/manifest`);
+        const res = await fetch(resolveUrl(`${server.url}/manifest`));
         if (!res.ok) return null;
         const manifest = await res.json();
         return { serverId: server.id, manifest };
