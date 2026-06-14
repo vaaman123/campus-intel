@@ -6,7 +6,7 @@ export async function GET() {
     MCP_SERVERS.map(async (server) => {
       try {
         const res = await fetch(`${server.url}/health`, {
-          signal: AbortSignal.timeout(3000),
+          signal: AbortSignal.timeout(15000),
         });
         const data = await res.json();
         return { id: server.id, name: server.name, online: res.ok, status: data.status };
