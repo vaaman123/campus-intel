@@ -1,0 +1,12 @@
+{
+  "name": "campus-intel",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../mcp-servers/library && npm install && cd ../cafeteria && npm install && cd ../events && npm install && cd ../academics && npm install",
+    "dev": "concurrently \"cd frontend && npm run dev\" \"cd mcp-servers/library && npm start\" \"cd mcp-servers/cafeteria && npm start\" \"cd mcp-servers/events && npm start\" \"cd mcp-servers/academics && npm start\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

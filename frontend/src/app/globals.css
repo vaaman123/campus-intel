@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-syne: 'Syne', sans-serif;
+  --font-jetbrains: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0a0a0f;
+  color: #e8e6f0;
+  font-family: var(--font-syne);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #12121a; }
+::-webkit-scrollbar-thumb { background: #3d3480; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #7c6af5; }
+
+/* Selection */
+::selection { background: rgba(124, 106, 245, 0.3); color: #e8e6f0; }
+
+/* Chat message prose */
+.prose-chat p { margin: 0 0 0.5rem; line-height: 1.65; }
+.prose-chat p:last-child { margin-bottom: 0; }
+.prose-chat ul { list-style: none; padding: 0; margin: 0.5rem 0; }
+.prose-chat ul li { padding-left: 1rem; position: relative; margin-bottom: 0.25rem; }
+.prose-chat ul li::before { content: '·'; position: absolute; left: 0; color: #7c6af5; font-weight: 700; }
+.prose-chat strong { color: #a594ff; font-weight: 600; }
+.prose-chat code { 
+  background: rgba(124,106,245,0.15); 
+  color: #a594ff; 
+  padding: 0.1em 0.4em; 
+  border-radius: 4px; 
+  font-family: var(--font-jetbrains);
+  font-size: 0.85em;
+}
+
+/* Shimmer skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #1c1c28 25%, #2a2840 50%, #1c1c28 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+  border-radius: 6px;
+}
+
+/* Noise texture overlay */
+.noise::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* Card glass effect */
+.glass {
+  background: rgba(28, 28, 40, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(124, 106, 245, 0.12);
+}
+
+.glass-bright {
+  background: rgba(28, 28, 40, 0.9);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(124, 106, 245, 0.2);
+}
+
+/* Glow effects */
+.glow-spark {
+  box-shadow: 0 0 30px rgba(124, 106, 245, 0.25), 0 0 60px rgba(124, 106, 245, 0.1);
+}
+
+.glow-jade {
+  box-shadow: 0 0 20px rgba(45, 212, 160, 0.2);
+}
+
+/* Typing dots */
+.typing-dot {
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Server status badge pulse */
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.status-pulse { animation: statusPulse 2s ease-in-out infinite; }
