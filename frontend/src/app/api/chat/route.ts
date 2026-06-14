@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { MCP_SERVERS, invokeMCPTool } from "@/lib/mcp-client";
 
-const client = new OpenAI({
-  apiKey: process.env.DEEPSEEK_API_KEY,
-  baseURL: "https://api.deepseek.com",
-});
+// Lazy-init DeepSeek client to avoid build-time env var checks
+let _client: OpenAI | null = null;
+function getClient(): OpenAI {
+  if (!_client) {
+    _client = new OpenAI({
+      apiKey: process.env.DEEPSEEK_API_KEY,
+      baseURL: "https://api.deepseek.com",
+    });
+  }
+  return _client;
+}
 
 // Build DeepSeek tools from all MCP server manifests (OpenAI function-calling format)
 async function buildTools(): Promise<OpenAI.Chat.Completions.ChatCompletionTool[]> {
@@ -87,7 +94,7 @@ Guidelines:
     while (iteration < MAX_ITERATIONS) {
       iteration++;
 
-      const response = await client.chat.completions.create({
+      const response = await getClient().chat.completions.create({
         model: "deepseek-chat",
         max_tokens: 2048,
         messages: msgHistory,
