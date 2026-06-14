@@ -9,11 +9,18 @@ export async function GET() {
     invokeMCPTool("library", "search_books", { query: "computer science", available_only: true }),
   ]);
 
-  return NextResponse.json({
-    cafeteria: menuRes.status === "fulfilled" ? menuRes.value.result : null,
-    events: eventsRes.status === "fulfilled" ? eventsRes.value.result : null,
-    deadlines: deadlinesRes.status === "fulfilled" ? deadlinesRes.value.result : null,
-    library: booksRes.status === "fulfilled" ? booksRes.value.result : null,
-    fetchedAt: new Date().toISOString(),
-  });
+  return NextResponse.json(
+    {
+      cafeteria: menuRes.status === "fulfilled" ? menuRes.value.result : null,
+      events: eventsRes.status === "fulfilled" ? eventsRes.value.result : null,
+      deadlines: deadlinesRes.status === "fulfilled" ? deadlinesRes.value.result : null,
+      library: booksRes.status === "fulfilled" ? booksRes.value.result : null,
+      fetchedAt: new Date().toISOString(),
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    }
+  );
 }
