@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { invokeMCPTool } from "@/lib/mcp-client";
+import { invokeMCPDirect } from "@/lib/mcp-data";
 
 export async function GET() {
   const [menuRes, eventsRes, deadlinesRes, booksRes] = await Promise.allSettled([
-    invokeMCPTool("cafeteria", "get_menu", { meal: "all" }),
-    invokeMCPTool("events", "list_events", { upcoming_only: true }),
-    invokeMCPTool("academics", "get_deadlines", { days_ahead: 7 }),
-    invokeMCPTool("library", "search_books", { query: "computer science", available_only: true }),
+    invokeMCPDirect("cafeteria", "get_menu", { meal: "all" }),
+    invokeMCPDirect("events", "list_events", { upcoming_only: true }),
+    invokeMCPDirect("academics", "get_deadlines", { days_ahead: 7 }),
+    invokeMCPDirect("library", "search_books", { query: "computer science", available_only: true }),
   ]);
 
   return NextResponse.json(

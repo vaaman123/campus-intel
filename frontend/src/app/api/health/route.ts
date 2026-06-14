@@ -1,24 +1,13 @@
 import { NextResponse } from "next/server";
-import { MCP_SERVERS, resolveUrl } from "@/lib/mcp-client";
+import { mcpServers } from "@/lib/mcp-data";
 
 export async function GET() {
-  const results = await Promise.allSettled(
-    MCP_SERVERS.map(async (server) => {
-      try {
-        const res = await fetch(resolveUrl(`${server.url}/health`), {
-          signal: AbortSignal.timeout(15000),
-        });
-        const data = await res.json();
-        return { id: server.id, name: server.name, online: res.ok, status: data.status };
-      } catch {
-        return { id: server.id, name: server.name, online: false, status: "offline" };
-      }
-    })
-  );
-
-  const servers = results.map((r) =>
-    r.status === "fulfilled" ? r.value : { online: false, status: "error" }
-  );
+  const servers = Object.entries(mcpServers).map(([id, srv]) => ({
+    id,
+    name: srv.displayName,
+    online: true,
+    status: "ok",
+  }));
 
   return NextResponse.json({ servers, timestamp: new Date().toISOString() });
 }

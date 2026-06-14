@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { MCP_SERVERS, invokeMCPTool, resolveUrl } from "@/lib/mcp-client";
+import { mcpServers, invokeMCPDirect } from "@/lib/mcp-data";
 
 // Lazy-init DeepSeek client to avoid build-time env var checks
 let _client: OpenAI | null = null;
@@ -14,33 +14,17 @@ function getClient(): OpenAI {
   return _client;
 }
 
-// Build DeepSeek tools from all MCP server manifests (OpenAI function-calling format)
-async function buildTools(): Promise<OpenAI.Chat.Completions.ChatCompletionTool[]> {
+// Build DeepSeek tools from MCP server definitions (OpenAI function-calling format)
+function buildTools(): OpenAI.Chat.Completions.ChatCompletionTool[] {
   const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [];
 
-  const manifests = await Promise.allSettled(
-    MCP_SERVERS.map(async (server) => {
-      try {
-        const res = await fetch(resolveUrl(`${server.url}/manifest`));
-        if (!res.ok) return null;
-        const manifest = await res.json();
-        return { serverId: server.id, manifest };
-      } catch {
-        return null;
-      }
-    })
-  );
-
-  for (const result of manifests) {
-    if (result.status !== "fulfilled" || !result.value) continue;
-    const { serverId, manifest } = result.value;
-
-    for (const tool of manifest.tools) {
+  for (const [serverId, srv] of Object.entries(mcpServers)) {
+    for (const tool of srv.tools) {
       tools.push({
         type: "function",
         function: {
           name: `${serverId}__${tool.name}`,
-          description: `[${manifest.displayName}] ${tool.description}`,
+          description: `[${srv.displayName}] ${tool.description}`,
           parameters: tool.inputSchema,
         },
       });
@@ -54,7 +38,7 @@ export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
 
-    const tools = await buildTools();
+    const tools = buildTools();
 
     const systemPrompt = `You are Campus Intel, a helpful AI assistant for students at this university campus.
 You have access to real-time data from four campus systems via tools:
@@ -127,7 +111,7 @@ Guidelines:
         assistantMessage.tool_calls.map(async (toolCall) => {
           const [serverId, toolName] = toolCall.function.name.split("__");
           const input = JSON.parse(toolCall.function.arguments || "{}");
-          const mcpResult = await invokeMCPTool(serverId, toolName, input as Record<string, unknown>);
+          const mcpResult = invokeMCPDirect(serverId, toolName, input as Record<string, unknown>);
 
           toolCallLog.push({
             tool: toolCall.function.name,
