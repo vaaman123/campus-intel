@@ -62,7 +62,10 @@ export async function getMCPManifest(serverId: string): Promise<MCPManifest | nu
   const server = MCP_SERVERS.find((s) => s.id === serverId);
   if (!server) return null;
   try {
-    const res = await fetch(`${server.url}/mcp/manifest`, { next: { revalidate: 60 } });
+    const res = await fetch(`${server.url}/mcp/manifest`, { 
+      signal: AbortSignal.timeout(15000),
+      next: { revalidate: 60 } 
+    });
     if (!res.ok) return null;
     return res.json();
   } catch {
@@ -84,6 +87,7 @@ export async function invokeMCPTool(
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tool, input }),
+      signal: AbortSignal.timeout(15000),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: "Unknown error" }));
