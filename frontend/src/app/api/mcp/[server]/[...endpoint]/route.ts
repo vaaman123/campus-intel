@@ -138,7 +138,7 @@ const servers: Record<string, ServerConfig> = {
       if (!menu) return { error: `No data for ${day}` };
       if (tool === "get_menu") {
         const meal = input.meal as string;
-        if (meal && meal !== "all") return { day, meal, items: menu[meal] || [] };
+        if (meal && meal !== "all") return { day, meal, items: (menu as Record<string, string[]>)[meal] || [] };
         return { day, menu };
       }
       if (tool === "get_specials") return { day, specials: menu.specials };
